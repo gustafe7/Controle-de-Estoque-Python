@@ -2,6 +2,7 @@
 # Programa para cadastrar produtos, controlar entrada e saída
 # e salvar os dados em arquivo de forma persistente.
 
+from auditoria import registrar_acao # Importa a função responsável por registrar ações no sistema de auditoria
 produtos = []  # lista que vai armazenar os produtos cadastrados
 
 # Carregar dados do arquivo estoque.txt, caso exista
@@ -29,7 +30,7 @@ def salvar_estoque():
 # Loop principal do sistema
 
 while True:
-    print("\n== GERENCIADOR DE ESTOQUE ===")
+    print("\n=== GERENCIADOR DE ESTOQUE ===")
     print("1 - cadastrar produto")
     print("2 - listar produtos")
     print("3 - entrada de estoque")
@@ -45,15 +46,21 @@ while True:
         if nome == "":
             print("nome inválido.")
             continue
-
         quantidade = int(input("quantidade inicial: "))
         produto = {
             "nome": nome,
             "quantidade": quantidade
         }
-
         produtos.append(produto)
         salvar_estoque()  # salva o estoque após cadastro
+
+        # Registra a ação de cadastro no sistema de auditoria
+        
+        registrar_acao(
+            "CADASTRO",
+            f"Produto '{nome}' cadastrado com quantidade inicial: {quantidade}"
+        )
+
         print("produto cadastrado com sucesso!")
 
     # Listar todos os produtos cadastrados
@@ -76,9 +83,18 @@ while True:
                 quantidade = int(input("quantidade a adicionar: "))
                 produto["quantidade"] += quantidade
                 salvar_estoque()  # salva após a entrada
+
+                # Registra a entrada no log de auditoria
+                
+                registrar_acao(
+                    "CADASTRO",
+                    f"Produto '{nome}' cadastrado com quantidade inicial: {quantidade}"
+                )
+
                 print("entrada registrada com sucesso!")
                 encontrado = True
                 break
+
         if not encontrado:
             print("produto não encontrado.")    
 
@@ -89,12 +105,28 @@ while True:
         encontrado = False
         for produto in produtos:
             if produto["nome"].lower() == nome:
-                quantidade = int(input("quantidade a retirar:"))
+                quantidade = int(input("quantidade a retirar: "))
+                
+                # Validação para impedir estoque negativo
+                
                 if quantidade > produto["quantidade"]:
                     print("quantidade insuficiente em estoque.")
+
+                    # Registra tentativa inválida no log
+                    
+                    registrar_acao(
+                        "ERRO",
+                        f"Tentativa de retirada maior que o estoque do produto '{produto['nome']}'"
+                    )
                 else:
                     produto["quantidade"] -= quantidade
                     salvar_estoque()  # salva após a saída
+
+                    registrar_acao(
+                        "SAIDA",
+                        f"Saída de {quantidade} unidades do produto '{produto['nome']}'" 
+                    )
+
                     print("saída registrada com sucesso!")
                 encontrado = True
                 break
