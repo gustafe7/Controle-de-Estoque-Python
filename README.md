@@ -17,6 +17,24 @@ O sistema funciona via terminal e permite gerenciar produtos em estoque de forma
 
 ---
 
+## 🛡️ Sistema de Auditoria
+
+O projeto possui um módulo de auditoria responsável por registrar todas as ações
+realizadas no sistema.
+
+São registradas:
+- Cadastro de produtos
+- Entradas e saídas de estoque
+- Tentativas inválidas
+- Erros operacionais
+
+Os registros são armazenados no arquivo `auditoria.log`, contendo data, tipo da
+ação e descrição detalhada.
+
+---
+
+---
+
 ## 🛠️ Tecnologias utilizadas
 
 - Python 3
