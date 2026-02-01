@@ -52,10 +52,10 @@ ação e descrição detalhada.
 ---
 
 ## ▶️ Como executar
-
+```bash
 git clone https://github.com/seu-usuario/Controle-de-Estoque-Python.git
 cd Controle-de-Estoque-Python
-
+```
 ---
 ## Instalar dependências no Terminal
 pip install flask
