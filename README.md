@@ -38,6 +38,9 @@ ação e descrição detalhada.
 ## 🛠️ Tecnologias utilizadas
 
 - Python 3
+- Flask
+- HTML
+- CSS
 - Manipulação de arquivos
 - Estruturas de dados (listas e dicionários)
 - Git e GitHub
