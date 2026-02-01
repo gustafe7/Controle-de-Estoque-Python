@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador de Estoque</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>📦 Gerenciador de Estoque</h1>
+
+<h2>Cadastrar produto</h2>
+<form action="/cadastrar" method="post">
+    <input type="text" name="nome" placeholder="Produto" required>
+    <input type="number" name="quantidade" placeholder="Quantidade" required>
+    <button type="submit">Cadastrar</button>
+    {% if mensagem_cadastro is defined and mensagem_cadastro %}
+    <p>{{ mensagem_cadastro }}</p>
+{% endif %}
+
+
+</form>
+
+<h2>Entrada de estoque</h2>
+<form action="/entrada" method="post">
+    <input type="text" name="nome" placeholder="Produto" required>
+    <input type="number" name="quantidade" placeholder="Quantidade" required>
+    <button type="submit">Entrada</button>
+    {% if mensagem_entrada is defined and mensagem_entrada %}
+    <p>{{ mensagem_entrada }}</p>
+{% endif %}
+
+</form>
+
+<h2>Saída de estoque</h2>
+<form action="/saida" method="post">
+    <input type="text" name="nome" placeholder="Produto" required>
+    <input type="number" name="quantidade" placeholder="Quantidade" required>
+    <button type="submit">Saída</button>
+    {% if mensagem_saida is defined and mensagem_saida %}
+    <p>{{ mensagem_saida }}</p>
+{% endif %}
+
+</form>
+
+<h2>Produtos em estoque</h2>
+<ul>
+    {% for produto in produtos %}
+        <li>{{ produto.nome }} — {{ produto.quantidade }}</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

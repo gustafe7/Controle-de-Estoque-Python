@@ -1,147 +1,159 @@
-# GERENCIADOR DE ESTOQUE EM PYTHON
-# Programa para cadastrar produtos, controlar entrada e saída
-# e salvar os dados em arquivo de forma persistente.
+# Importa a função responsável por registrar ações no arquivo de log
+# (cadastro, entrada, saída e erros)
+from auditoria import registrar_acao
 
-from auditoria import registrar_acao # Importa a função responsável por registrar ações no sistema de auditoria
-produtos = []  # lista que vai armazenar os produtos cadastrados
+# Nome do arquivo que armazena os dados do estoque
+ARQUIVO_ESTOQUE = "estoque.txt"
 
-# Carregar dados do arquivo estoque.txt, caso exista
-# Cada linha do arquivo deve ter o formato: nome;quantidade
+# Lista em memória que representa o estoque atual
+# Cada item será um dicionário: {"nome": str, "quantidade": int}
+produtos = []
 
-try:
-    with open("estoque.txt", "r") as arquivo:
-        for linha in arquivo:
-            nome, quantidade = linha.strip().split(";")
-            produtos.append({
-                "nome": nome,
-                "quantidade": int(quantidade)
-            })
-except FileNotFoundError:
-    # Caso o arquivo não exista, a lista de produtos começa vazia
-    pass
+# FUNÇÃO: carregar_estoque
+# ---------------------------------------------------------
+# Lê o arquivo estoque.txt e carrega os produtos na lista
+# 'produtos'. Essa função sempre limpa a lista antes
+# de carregar para evitar duplicações.
 
-# Função para salvar o estoque atual no arquivo
+def carregar_estoque():
+    produtos.clear()  # Limpa a lista antes de recarregar os dados
+
+    try:
+        # Abre o arquivo de estoque em modo leitura
+        with open(ARQUIVO_ESTOQUE, "r") as arquivo:
+            for linha in arquivo:
+                # Cada linha do arquivo tem o formato: nome;quantidade
+                nome, quantidade = linha.strip().split(";")
+
+                # Adiciona o produto na lista em memória
+                produtos.append({
+                    "nome": nome,
+                    "quantidade": int(quantidade)
+                })
+    except FileNotFoundError:
+        # Caso o arquivo ainda não exista,
+        # o estoque inicia vazio
+        pass
+
+# FUNÇÃO: salvar_estoque
+# ---------------------------------------------------------
+# Grava o conteúdo da lista 'produtos' no arquivo estoque.txt.
+# Essa função é chamada sempre que o estoque sofre alterações.
 
 def salvar_estoque():
-    with open("estoque.txt", "w") as arquivo:
+    # Abre o arquivo em modo escrita (sobrescreve o conteúdo)
+    with open(ARQUIVO_ESTOQUE, "w") as arquivo:
         for produto in produtos:
-            arquivo.write(f"{produto['nome']};{produto['quantidade']}\n")
+            # Salva cada produto no formato: nome;quantidade
+            arquivo.write(
+                f"{produto['nome']};{produto['quantidade']}\n"
+            )
 
-# Loop principal do sistema
+# FUNÇÃO: listar_produtos
+# ---------------------------------------------------------
+# Retorna todos os produtos cadastrados no estoque.
+# Sempre recarrega os dados do arquivo antes de retornar.
 
-while True:
-    print("\n=== GERENCIADOR DE ESTOQUE ===")
-    print("1 - cadastrar produto")
-    print("2 - listar produtos")
-    print("3 - entrada de estoque")
-    print("4 - saída de estoque")
-    print("5 - sair")
+def listar_produtos():
+    carregar_estoque()
+    return produtos
 
-    opcao = input("escolha uma opcao: ")
+# FUNÇÃO: cadastrar_produto
+# ---------------------------------------------------------
+# Cadastra um novo produto no estoque com quantidade inicial.
+# Também registra a ação no arquivo de auditoria (.log).
 
-    # Cadastro de novo produto
-    
-    if opcao == "1":
-        nome = input("nome do produto: ").strip()
-        if nome == "":
-            print("nome inválido.")
-            continue
-        quantidade = int(input("quantidade inicial: "))
-        produto = {
-            "nome": nome,
-            "quantidade": quantidade
-        }
-        produtos.append(produto)
-        salvar_estoque()  # salva o estoque após cadastro
+def cadastrar_produto(nome, quantidade):
+    carregar_estoque()
 
-        # Registra a ação de cadastro no sistema de auditoria
-        
-        registrar_acao(
-            "CADASTRO",
-            f"Produto '{nome}' cadastrado com quantidade inicial: {quantidade}"
-        )
+    # Verifica se já existe produto com o mesmo nome
+    for produto in produtos:
+        if produto["nome"].lower() == nome.lower():
+            return False  # Produto já existe
 
-        print("produto cadastrado com sucesso!")
+    # Se não existir, cadastra
+    produtos.append({
+        "nome": nome,
+        "quantidade": quantidade
+    })
 
-    # Listar todos os produtos cadastrados
-    
-    elif opcao == "2":
-        if not produtos:
-            print("nenhum produto cadastrado.")
-        else:
-            print("\n--- ESTOQUE FINAL ---")
-            for produto in produtos:
-                print(f"{produto['nome']} - quantidade: {produto['quantidade']}") 
+    salvar_estoque()
 
-    # Entrada de estoque (aumentar quantidade)
-    
-    elif opcao == "3":
-        nome = input("nome do produto para entrada: ").strip().lower()
-        encontrado = False
-        for produto in produtos:
-            if produto["nome"].lower() == nome:
-                quantidade = int(input("quantidade a adicionar: "))
-                produto["quantidade"] += quantidade
-                salvar_estoque()  # salva após a entrada
+    registrar_acao(
+        "CADASTRO",
+        f"Produto '{nome}' cadastrado com quantidade inicial {quantidade}"
+    )
 
-                # Registra a entrada no log de auditoria
-                
+    return True  # Cadastro realizado com sucesso
+
+
+    # Salva o estoque atualizado no arquivo
+    salvar_estoque()
+
+    # Registra a ação de cadastro no log
+    registrar_acao(
+        "CADASTRO",
+        f"Produto '{nome}' cadastrado com quantidade inicial {quantidade}"
+    )
+
+# FUNÇÃO: entrada_estoque
+# ---------------------------------------------------------
+# Aumenta a quantidade de um produto existente.
+# Retorna True se o produto for encontrado,
+# ou False caso não exista.
+
+def entrada_estoque(nome, quantidade):
+    carregar_estoque()
+
+    for produto in produtos:
+        # Compara os nomes ignorando maiúsculas/minúsculas
+        if produto["nome"].lower() == nome.lower():
+            produto["quantidade"] += quantidade
+            salvar_estoque()
+
+            # Registra a entrada no log
+            registrar_acao(
+                "ENTRADA",
+                f"Entrada de {quantidade} unidades no produto '{nome}'"
+            )
+            return True
+
+    # Produto não encontrado
+    return False
+
+# FUNÇÃO: saida_estoque
+# ---------------------------------------------------------
+# Reduz a quantidade de um produto existente.
+# Impede que o estoque fique negativo.
+# Retorna True em caso de sucesso ou False em caso de erro.
+
+def saida_estoque(nome, quantidade):
+    carregar_estoque()
+
+    for produto in produtos:
+        if produto["nome"].lower() == nome.lower():
+
+            # Validação para evitar estoque negativo
+            if quantidade > produto["quantidade"]:
                 registrar_acao(
-                    "CADASTRO",
-                    f"Produto '{nome}' cadastrado com quantidade inicial: {quantidade}"
+                    "ERRO",
+                    f"Tentativa de saída maior que o estoque do produto '{nome}'"
                 )
+                return False
 
-                print("entrada registrada com sucesso!")
-                encontrado = True
-                break
+            # Atualiza a quantidade do produto
+            produto["quantidade"] -= quantidade
+            salvar_estoque()
 
-        if not encontrado:
-            print("produto não encontrado.")    
+            # Registra a saída no log
+            registrar_acao(
+                "SAIDA",
+                f"Saída de {quantidade} unidades do produto '{nome}'"
+            )
+            return True
 
-    # Saída de estoque (reduzir quantidade)
-    
-    elif opcao == "4":
-        nome = input("nome do produto para saída:").strip().lower()
-        encontrado = False
-        for produto in produtos:
-            if produto["nome"].lower() == nome:
-                quantidade = int(input("quantidade a retirar: "))
-                
-                # Validação para impedir estoque negativo
-                
-                if quantidade > produto["quantidade"]:
-                    print("quantidade insuficiente em estoque.")
+    # Produto não encontrado
+    return False
 
-                    # Registra tentativa inválida no log
-                    
-                    registrar_acao(
-                        "ERRO",
-                        f"Tentativa de retirada maior que o estoque do produto '{produto['nome']}'"
-                    )
-                else:
-                    produto["quantidade"] -= quantidade
-                    salvar_estoque()  # salva após a saída
-
-                    registrar_acao(
-                        "SAIDA",
-                        f"Saída de {quantidade} unidades do produto '{produto['nome']}'" 
-                    )
-
-                    print("saída registrada com sucesso!")
-                encontrado = True
-                break
-        if not encontrado:
-            print("produto não encontrado")
-
-    # Sair do sistema
-
-    elif opcao == "5":
-        print("saindo do sistema...")
-        break
-
-    # Opção inválida digitada
-    
-    else:
-        print("opcao inválida")
 
     
