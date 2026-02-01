@@ -1,11 +1,11 @@
-Controle de Estoque em Python
+## Controle de Estoque em Python
 
 Projeto desenvolvido em Python com foco em praticar lógica de programação, estruturas de dados e manipulação de arquivos.  
 O sistema funciona via terminal e permite gerenciar produtos em estoque de forma simples e eficiente.
 
 ---
 
-Funcionalidades
+## Funcionalidades
 
 - Cadastrar produtos com quantidade inicial
 - Listar produtos cadastrados
@@ -17,7 +17,7 @@ Funcionalidades
 
 ---
 
-Sistema de Auditoria
+## Sistema de Auditoria
 
 O projeto possui um módulo de auditoria responsável por registrar todas as ações
 realizadas no sistema.
