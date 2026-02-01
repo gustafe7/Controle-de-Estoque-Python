@@ -44,11 +44,37 @@
 </form>
 
 <h2>Produtos em estoque</h2>
-<ul>
-    {% for produto in produtos %}
-        <li>{{ produto.nome }} — {{ produto.quantidade }}</li>
-    {% endfor %}
+<ul style="padding:0; list-style:none;">
+{% for produto in produtos %}
+    <li style="padding:6px 0;">
+        <div style="
+            display:inline-flex;
+            align-items:center;
+            gap:12px;
+            padding-bottom:6px;
+            border-bottom:1px solid #ccc;
+        ">
+            <span>
+                <strong>{{ produto.nome }}</strong> — {{ produto.quantidade }}
+            </span>
+
+            <form action="/excluir" method="POST" style="margin:0;">
+                <input type="hidden" name="nome" value="{{ produto.nome }}">
+                <button
+                    type="submit"
+                    style="font-size:12px; padding:4px 8px;"
+                >
+                    Excluir
+                </button>
+            </form>
+        </div>
+    </li>
+{% endfor %}
 </ul>
+
+{% if mensagem_exclusao %}
+    <p>{{ mensagem_exclusao }}</p>
+{% endif %}
 
 </body>
 </html>

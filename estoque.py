@@ -155,5 +155,31 @@ def saida_estoque(nome, quantidade):
     # Produto não encontrado
     return False
 
+def excluir_produto_estoque(nome):
+    # Carrega os produtos atuais do arquivo
+    carregar_estoque()
+
+    # Percorre a lista de produtos
+    for produto in produtos:
+        # Compara os nomes ignorando maiúsculas/minúsculas
+        if produto["nome"].lower() == nome.lower():
+            # Remove o produto da lista
+            produtos.remove(produto)
+
+            # Salva a lista atualizada no arquivo
+            salvar_estoque()
+
+            # Registra a ação no arquivo de log
+            registrar_acao(
+                "EXCLUSAO",
+                f"Produto '{nome}' removido do estoque"
+            )
+
+            return True  # Exclusão realizada com sucesso
+
+    # Produto não encontrado
+    return False
+
+
 
     

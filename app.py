@@ -3,7 +3,8 @@ from estoque import (
     listar_produtos,
     cadastrar_produto,
     entrada_estoque,
-    saida_estoque
+    saida_estoque,
+    excluir_produto_estoque
 )
 
 app = Flask(__name__)
@@ -17,7 +18,8 @@ def index():
         produtos=produtos,
         mensagem_cadastro=None,
         mensagem_entrada=None,
-        mensagem_saida=None
+        mensagem_saida=None,
+        mensagem_exclusao=None
     )
 
 # Cadastro de produto
@@ -40,7 +42,8 @@ def cadastrar():
         produtos=produtos,
         mensagem_cadastro=mensagem_cadastro,
         mensagem_entrada=None,
-        mensagem_saida=None
+        mensagem_saida=None,
+        mensagem_exclusao=None
     )
 
 # Entrada de estoque
@@ -63,7 +66,8 @@ def entrada():
         produtos=produtos,
         mensagem_cadastro=None,
         mensagem_entrada=mensagem_entrada,
-        mensagem_saida=None
+        mensagem_saida=None,
+        mensagem_exclusao=None
     )
 
 # Saída de estoque
@@ -86,8 +90,32 @@ def saida():
         produtos=produtos,
         mensagem_cadastro=None,
         mensagem_entrada=None,
+        mensagem_exclusao=None,
         mensagem_saida=mensagem_saida
     )
+
+@app.route("/excluir", methods=["POST"])
+def excluir():
+    nome = request.form["nome"]
+
+    sucesso = excluir_produto_estoque(nome)
+
+    if sucesso:
+        mensagem = "Produto excluído com sucesso"
+
+    else:
+        mensagem = "Produto não encontrado"
+
+    produtos = listar_produtos()
+
+    return render_template(
+        "index.html",
+        produtos=produtos,
+        mensagem_cadastro=None,
+        mensagem_entrada=None,
+        mensagem_saida=None,
+        mensagem_exclusao=mensagem
+)
 
 if __name__ == "__main__":
     app.run(debug=True)
