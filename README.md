@@ -1,7 +1,11 @@
 ## Controle de Estoque em Python
 
-Projeto desenvolvido em Python com foco em praticar lógica de programação, estruturas de dados e manipulação de arquivos.  
-O sistema funciona via terminal e permite gerenciar produtos em estoque de forma simples e eficiente.
+Este projeto foi desenvolvido com foco em aprendizado prático, simulando um sistema real de controle de estoque, muito comum em ambientes corporativos, especialmente para:
+
+- Suporte técnico
+- Sistemas administrativos
+- Pequenos comércios
+- Automação de processos
 
 ---
 
@@ -49,5 +53,15 @@ ação e descrição detalhada.
 
 ## ▶️ Como executar
 
-```bash
-python estoque.py
+git clone https://github.com/seu-usuario/Controle-de-Estoque-Python.git
+cd Controle-de-Estoque-Python
+
+---
+## Instalar dependências no Terminal
+pip install flask
+
+## Executar a aplicação no Terminal
+python app.py
+
+## Acessar o navegador no Terminal
+http://127.0.0.1:5000
