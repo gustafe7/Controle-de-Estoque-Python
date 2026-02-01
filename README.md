@@ -15,6 +15,7 @@ Este projeto foi desenvolvido com foco em aprendizado prático, simulando um sis
 - Listar produtos cadastrados
 - Registrar entrada de estoque
 - Registrar saída de estoque
+- Excluir produtos cadastrados
 - Impedir retirada maior que a quantidade disponível
 - Persistência de dados em arquivo
 - Menu interativo no terminal
